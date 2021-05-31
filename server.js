@@ -1,6 +1,7 @@
 const express = require('express')
 const formidable = require('express-formidable')
 const path = require('path')
+const fs = require('fs')
 
 //server host address and port no
 const IP = '127.0.0.1'
@@ -15,9 +16,10 @@ var logRequest = (req, res, next) => {
     next()
 }
 
+var id = 0
 // add middleware
 app.use(logRequest)     
-app.use(formidable())
+app.use(formidable({uploadDir: path.join(__dirname, 'images')}))
 
 //routes
 app.get('/', (req, res) => {
@@ -27,6 +29,10 @@ app.get('/', (req, res) => {
 app.post('/submit', (req, res) => {
     console.log( req.fields)
     console.log(req.files)
+    console.log(req.files.img)
+
+    fs.renameSync(req.files.img.path, path.join(__dirname, 'images', (String(id++) + path.parse(req.files.img.name).ext)))
+
     res.sendFile(path.join(__dirname, 'form.html'))
 })
 
